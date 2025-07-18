@@ -85,7 +85,7 @@ $(document).ready(function () {
                             $('#registeform').data('bootstrapValidator', null);
                         }
                     } else {
-                        window.location.href = "/user/" + result['msg'];
+                        window.location.href = "/user/"
                     }
                 },
 
@@ -145,9 +145,8 @@ $(document).ready(function () {
                             $('#loginform').data('bootstrapValidator', null);
                         }
                     } else {
-                        href_str = "/user/" + result['msg'];
 
-                        window.location.replace(href_str);
+                         window.location.replace("/user/");
                     }
                 },
 
