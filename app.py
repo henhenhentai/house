@@ -1,5 +1,9 @@
 from flask import Flask
 
+#引入数据库配置
+from config import Config, db
+
+
 # 首页
 from page.index import index_page
 from page.detail import detail_page
@@ -9,9 +13,10 @@ from page.list import list_page
 # 用户API
 from api.user import user_api
 
-
-
 app = Flask(__name__)
+
+app.config.from_object(Config)
+db.init_app(app)
 
 # 注册首页
 app.register_blueprint(index_page, url_prefix='/')
