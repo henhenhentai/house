@@ -70,6 +70,8 @@ class House(db.Model):
     phone_num = db.Column(db.String(100))
     # 房源数量
     house_num = db.Column(db.String(100))
+    # 图片地址
+    imgpath = db.Column(db.String(100))
 
     # 重写repr方法，方便查看对象输出的内容
     def __repr__(self):
