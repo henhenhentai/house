@@ -286,3 +286,27 @@ input {
     cursor: pointer;
     color: red;
 }
+
+.user-info input {
+    outline: 0;
+    border: 0;
+    width: calc(100% - 60px);
+    background-color: #ecf0f1;
+    font-size: 16px;
+    color: #394043;
+    font-weight: 300;
+}
+
+.user-info .btnuser {
+    display: flex;
+    justify-content: center;
+}
+
+.user-info .btnuser .btn {
+    width: 50%;
+}
+
+.user-info .btnuser .btn-primary:hover {
+    background-color: #0069d9!important;
+    border-color: #0062cc!important;
+}

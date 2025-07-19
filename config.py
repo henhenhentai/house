@@ -10,6 +10,6 @@ class Config:
     # 调试模式
     DEBUG = False
     # 指定数据库的链接地址
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:wxhyiyiyi.@127.0.0.1/house'
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:mima@127.0.0.1/house'
     # 关闭警告信息
     SQLALCHEMY_TRACK_MODIFICATIONS = True

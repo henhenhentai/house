@@ -3,7 +3,6 @@ from flask import Flask
 #引入数据库配置
 from config import Config, db
 
-
 # 首页
 from page.index import index_page
 from page.detail import detail_page

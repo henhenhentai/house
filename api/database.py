@@ -1,8 +1,5 @@
 import pymysql
-from flask import Blueprint
 import pymysql.cursors
-
-
 
 connection = pymysql.connect(
             host='127.0.0.1',
@@ -13,7 +10,6 @@ connection = pymysql.connect(
             cursorclass=pymysql.cursors.DictCursor
         )
 # 创建连接
-
 
 def data_select():
         # 创建游标对象
@@ -33,7 +29,7 @@ def data_select():
         connection.close()
 
 
-def add_data(user_name, password, email):
+def add_data(name, password, email):
     try:
         # 创建游标对象
         with connection.cursor() as cursor:

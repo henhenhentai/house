@@ -8,63 +8,42 @@
         <div class="row ">
             <div class="col-lg-8 col-md-8 mx-auto detail-body">
                 <ul class="nav nav-tabs" style="margin:10px 0 30px">
-                    <li class="active chanle1"><a href="#userinfo">账号信息</a></li>
+                    <li class="active chanle1"><a href="#userinfo">基本资料</a></li>
                     <li class="chanle2"><a href="#collections">房源收藏</a></li>
                 </ul>
                 <!-- 个人信息 -->
-                <div class="user-info">
-                    <input value="" id="n-data" style="display: none">
-                    <div class="row">
-                        <div class="col-lg-8 c-1">
-                            <span>昵称：</span>
-                            <span class="nkname">3333</span>
+                <form method="post" id="userdetail">
+                    <div class="user-info">
+                        <div class="row">
+                            <div class="col-lg-12 c-1">
+                                <span>昵称：</span>
+                                <input type="text" name="name" value="{{user.name}}">
+                            </div>
                         </div>
-                        <div class="col-lg-4">
-                            <button class="btn-info c-2" id="btn-name"><i class="fa fa-pencil-square-o"
-                                    aria-hidden="true"> 编辑</i>
-                            </button>
+                        <div class="row">
+                            <div class="col-lg-12 c-1">
+                                <span>住址：</span>
+                                <input type="text" name="addr" value="{{user.addr if user.addr else ""}}"
+                                    placeholder="请输入住址">
+                            </div>
                         </div>
-                    </div>
-
-                    <input value="" id="a-data" style="display: none">
-                    <div class="row">
-                        <div class="col-lg-8 c-1">
-                            <span>住址：</span>
-                            <span class="nkaddr">55555</span>
+                        <div class="row">
+                            <div class="col-lg-12 c-1">
+                                <span>密码：</span>
+                                <input type="password" name="password" placeholder="请输入密码">
+                            </div>
                         </div>
-                        <div class="col-lg-4">
-                            <button class="btn-info c-2" id="btn-addr"><i class="fa fa-pencil-square-o"
-                                    aria-hidden="true"> 编辑</i>
-                            </button>
+                        <div class="row">
+                            <div class="col-lg-12 c-1">
+                                <span>邮箱：</span>
+                                <input type="text" name="email" value="{{user.email}}">
+                            </div>
                         </div>
-                    </div>
-
-                    <input value="" id="p-data" style="display: none">
-                    <div class="row">
-                        <div class="col-lg-8 c-1">
-                            <span>密码：</span>
-                            <span class="nkpd">4444</span>
-                        </div>
-                        <div class="col-lg-4">
-                            <button class="btn-info c-2" id="btn-pd"><i class="fa fa-pencil-square-o"
-                                    aria-hidden="true"> 编辑</i>
-                            </button>
+                        <div class="row btnuser">
+                            <button class="btn btn-primary">提交</button>
                         </div>
                     </div>
-
-                    <input value="" id="e-data" style="display: none">
-                    <div class="row">
-                        <div class="col-lg-8 c-1">
-                            <span>邮箱：</span>
-                            <span class="nkemail">444444</span>
-                        </div>
-                        <div class="col-lg-4">
-                            <button class="btn-info c-2" id="btn-email"><i class="fa fa-pencil-square-o"
-                                    aria-hidden="true"> 编辑</i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                </form>
                 <!--收藏列表-->
                 <div class="collection">
                     <div class="row collection-line" id="collect">
@@ -169,6 +148,85 @@
             $(".collection").show()
         }
         $(this).addClass("active").siblings().removeClass("active")
+    })
+
+    // 修改个人资料
+    $("#userdetail").bootstrapValidator({
+        fields: {
+            name: {
+                validators: {
+                    notEmpty: {
+                        message: '用户名不能为空!'
+                    },
+                    stringLength: {
+                        min: 6,
+                        max: 15,
+                        message: '用户名长度必须在6到15位之间'
+                    },
+                    regexp: {
+                        regexp: /^[a-zA-Z0-9_\.]+$/,
+                        message: '用户名只能包含大写、小写、数字和下画线'
+                    },
+                    different: {
+                        field: 'password',
+                        message: '用户名不能与密码相同'
+                    }
+                }
+            },
+            password: {
+                validators: {
+                    different: {
+                        field: 'username',
+                        message: '密码不能与用户名相同'
+                    },
+                    stringLength: {
+                        min: 4,
+                        max: 15,
+                        message: '密码长度必须在4到15位之间'
+                    },
+                }
+            },
+            email: {
+                validators: {
+                    notEmpty: {
+                        message: '邮箱不能为空!'
+                    },
+                    emailAddress: {
+                        message: '无效的邮箱地址'
+                    }
+                }
+            },
+        }
+    })
+
+    $("form").on('submit', function (e) {
+        e.preventDefault();
+        let formdata = $("#userdetail").serializeArray()
+        let data = {}
+        $.each(formdata, function (i, item) {
+            data[item.name] = item.value
+        });
+        let validator = $('#userdetail').data("bootstrapValidator"); //获取validator对象
+        validator.validate(); //手动触发验证
+        if (validator.isValid()) {
+            $.ajax({
+                type: 'post',
+                url: '/profile',
+                data: data,
+                dataType: 'json',
+                success: function (res) {
+                    console.log(res)
+                    if (res.code == 1) {
+                        alert(res.msg);
+                        location.href = "/user/" + res.data
+                    }
+                    else {
+                        alert(res.msg);
+                        location.href = '/';
+                    }
+                }
+            })
+        }
     })
 </script>
 {% endblock %}

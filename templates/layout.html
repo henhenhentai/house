@@ -55,17 +55,17 @@
                     </li>
 
                     <li class="nav-item" id="user">
-                         <!--{% if request.cookies.get('name') %}
-                        处于登录状态
-                        用户名、退出登录
+                         {% if request.cookies.get('name') %}
+                        <!--处于登录状态
+                        用户名、退出登录-->
                          <a id='u_name' class="nav-link" href="/user/{{ request.cookies.get('name') }}">{{
-                        request.cookies.get('name') }}</a>-->
-                        <a id='u_name' class="nav-link" href="/user">个人中心</a>
+                         request.cookies.get('name') }}</a>
                          {% else %}
-                        <!--没有处于登录装填下，才显示登录按钮-->
+                         <!--<没有处于登录装填下，才显示登录按钮-->
                          <a class="nav-link" data-toggle="modal" data-target="#login" href="">登录</a>
-                         <!--{% endif %}-->
+                         {% endif %}
                     </li>
+
                     <li class="nav-item">
                         <a class="nav-link" id="logout" href="">退出登录</a>
                     </li>
@@ -95,7 +95,7 @@
                             <form class="form-group" id="registeform" action="/register" method="post">
                                 <div class="form-group">
                                     <label for="" class="form-info">用户名</label>
-                                    <input class="form-control" name="username" type="text" placeholder="6-15位字母或数字">
+                                    <input class="form-control" name="name" type="text" placeholder="6-15位字母或数字">
                                 </div>
                                 <div class="form-group">
                                     <label for="" class="form-info">密码</label>

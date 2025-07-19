@@ -1,172 +1,175 @@
 $(document).ready(function () {
-
-    // 注册
-    $('#registe-btn').on('click', function () {
-        $('#registeform').bootstrapValidator({
-            message: 'This value is not valid',
-            fields: {
-                username: {
-                    message: 'The username is not valid',
-                    validators: {
-                        notEmpty: {
-                            message: '用户名不能为空'
-                        },
-                        stringLength: {
-                            min: 6,
-                            max: 15,
-                            message: '用户名长度必须在6到15位之间'
-                        },
-                        regexp: {
-                            regexp: /^[a-zA-Z0-9_\.]+$/,
-                            message: '用户名只能包含大写、小写、数字和下画线'
-                        },
-                        different: {
-                            field: 'password',
-                            message: '用户名不能与密码相同'
-                        }
+    // 注册表单验证，确保只初始化一次
+    $("#registeform").bootstrapValidator({
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            name: {
+                validators: {
+                    notEmpty: {
+                        message: '用户名不能为空!'
+                    },
+                    stringLength: {
+                        min: 6,
+                        max: 10,
+                        message: '用户名长度6到10个字符！'
+                    },
+                    regexp: {
+                        regexp: /^[a-zA-Z0-9_]+$/,
+                        message: '用户名只能包含大写、小写、数字和下画线'
                     }
-                },
-                email: {
-                    validators: {
-                        notEmpty: {
-                            message: '邮箱不能为空'
-                        },
-                        emailAddress: {
-                            message: '无效的邮箱地址'
-                        }
+                }
+            },
+            password: {
+                validators: {
+                    notEmpty: {
+                        message: '密码不能为空!'
+                    },
+                    stringLength: {
+                        min: 6,
+                        max: 16,
+                        message: '密码长度6到15个字符！'
+                    },
+                    different: {
+                        field: 'name',
+                        message: '密码不能与用户名相同'
                     }
-                },
-                password: {
-                    validators: {
-                        notEmpty: {
-                            message: '密码不能为空'
-                        },
-                        identical: {
-                            field: 'confirmPassword',
-                            message: '与确认密码不一致'
-                        },
-                        different: {
-                            field: 'username',
-                            message: '密码不能与用户名相同'
-                        }
+                }
+            },
+            confirmPassword: {
+                validators: {
+                    notEmpty: {
+                        message: '确认密码不能为空!'
+                    },
+                    stringLength: {
+                        min: 6,
+                        max: 16,
+                        message: '确认密码长度6到15个字符！'
+                    },
+                    different: {
+                        field: 'name',
+                        message: '确认密码不能与用户名相同'
+                    },
+                    identical: {
+                        field: 'password',
+                        message: '两次密码输入不一致'
                     }
-                },
-                confirmPassword: {
-                    validators: {
-                        notEmpty: {
-                            message: '确认密码不能为空'
-                        },
-                        identical: {
-                            field: 'password',
-                            message: '与密码不一致'
-                        },
-                        different: {
-                            field: 'username',
-                            message: '确认密码不能与用户名相同'
-                        }
+                }
+            },
+            email: {
+                validators: {
+                    notEmpty: {
+                        message: '邮箱不能为空!'
+                    },
+                    emailAddress: {
+                        message: '无效的邮箱地址'
                     }
                 }
             }
-        });
-        var validator = $('#registeform').data("bootstrapValidator"); //获取validator对象
-        validator.validate(); //手动触发验证
-        if (validator.isValid()) { //通过验证
+        }
+    });
+
+    // 在点击注册按钮时验证表单
+    $("#registe-btn").on('click', function () {
+        let validator = $("#registeform").data('bootstrapValidator');
+        // 手动触发验证
+        validator.validate();
+
+        if (validator.isValid()) {
+            // 发起AJAX请求
             $.ajax({
                 type: 'post',
                 url: '/register',
-                data: $('#registeform').serialize(),
+                data: $("#registeform").serialize(),
                 dataType: 'json',
-                success: function (result) {
-                    if (result['valid'] == '0') {
-                        alert(result['msg'])
-                        var validatorObj = $("#registeform").data('bootstrapValidator');
-                        if (validatorObj) {
-                            $("#registeform").data('bootstrapValidator').destroy(); //或者 validatorObj.destroy(); 都可以，销毁验证
-                            $('#registeform').data('bootstrapValidator', null);
-                        }
+                success: function (res) {
+                    if (res.code === 1) { // 注册成功
+                        alert(res.msg); // 显示成功消息
+                        location.href = '/user/' + res.data; // 跳转到用户页面
                     } else {
-                        window.location.href = "/user/"
+                        // 重置表单并清除验证状态
+                        let validator = $("#registeform").data('bootstrapValidator');
+                        if (validator) {
+                            $("#registeform").data('bootstrapValidator').resetForm(true);
+                        }
+                        alert(res.msg); // 显示失败信息
                     }
-                },
-
-            })
+                }
+            });
         }
     });
 
-    // 登录
-    $('#login-btn').on('click', function () {
-        $('#loginform').bootstrapValidator({
-            message: 'This value is not valid',
-            fields: {
-                username: {
-                    message: 'The username is not valid',
-                    validators: {
-                        notEmpty: {
-                            message: '用户名不能为空'
-                        },
-                        stringLength: {
-                            min: 6,
-                            max: 15,
-                            message: '用户名长度必须在6到15位之间'
-                        },
-                        regexp: {
-                            regexp: /^[a-zA-Z0-9_\.]+$/,
-                            message: '用户名只能包含大写、小写、数字和下划线'
-                        }
-                    }
-                },
-                password: {
-                    validators: {
-                        notEmpty: {
-                            message: '密码不能为空'
-                        },
-                        different: {
-                            field: 'username',
-                            message: '密码不能与用户名相同'
-                        }
+
+    $("#loginform").bootstrapValidator({
+        fields: {
+            name: {
+                validators: {
+                    notEmpty: { // 非空校验
+                        message: '用户名不能为空!'
                     }
                 }
-            }
-        }); //验证配置
-        var validator = $('#loginform').data("bootstrapValidator"); //获取validator对象
-        validator.validate(); //手动触发验证
-        if (validator.isValid()) { //通过验证
+            },
+            password: {
+                validators: {
+                    notEmpty: {
+                        message: '密码不能为空!'
+                    }
+                }
+            },
+        }
+    })
+
+    // 登陆
+    $("#login-btn").on('click', function () {
+        let validator = $("#loginform").data('bootstrapValidator');
+        validator.isValid() //手动触发验证
+        if (validator.isValid()) {
             $.ajax({
                 type: 'post',
                 url: '/login',
-                data: $('#loginform').serialize(),
+                data: $("#loginform").serialize(),
                 dataType: 'json',
-                success: function (result) {
-                    if (result['valid'] == '0') {
-                        alert(result['msg'])
-                        var validatorObj = $("#loginform").data('bootstrapValidator');
-                        if (validatorObj) {
-                            $("#loginform").data('bootstrapValidator').destroy(); //或者 validatorObj.destroy(); 都可以，销毁验证
-                            $('#loginform').data('bootstrapValidator', null);
-                        }
-                    } else {
-
-                         window.location.replace("/user/");
+                success: function (res) {
+                    if (res.code == 1) {
+                        alert(res.msg);
+                        location.href = '/user/' + res.data;
                     }
-                },
-
+                    else {
+                        let validator = $("#loginform").data('bootstrapValidator');
+                        if (validator) {
+                            $("#loginform").data('bootstrapValidator').resetForm(true);
+                        }
+                        alert(res.msg);
+                    }
+                }
             })
         }
-    });
-// 退出
-$("#logout").on('click', function () {
-    $.ajax({
-        url: '/logout',
-        type: 'get',
-        dataType: 'json',
-        success: function (res) {
-            if (res["valid"] == '1') {   // 退出成功
-                alert(res["msg"]);
-                window.location.href = '/';
-            } else {                     // 退出失败
-                alert(res["msg"]);
-            }
+    })
+
+    $("#logout").on('click', function () {
+        let status = confirm('确认是否退出登陆?')
+        if(status)
+        {
+            $.ajax({
+                type: 'post',
+                url: '/logout',
+                dataType: 'json',
+                success: function(res)
+                {
+                    if(res.code == 1)
+                    {
+                        alert(res.msg);
+                        location.href = '/';
+                    }
+                    else
+                    {
+                        alert(res.msg);
+                    }
+                }
+            })
         }
     })
-});
 });
