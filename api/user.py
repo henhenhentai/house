@@ -42,7 +42,7 @@ def register():
 
 @user_api.route('/login', methods=['post'])
 def login():
-    name = request.form['username']
+    name = request.form['name']
     password = request.form['password']
 
     result = User.query.filter(User.name == name).first()

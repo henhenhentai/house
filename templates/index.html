@@ -3,8 +3,6 @@
 <!-- 引入页面单独的样式 -->
 <link rel="stylesheet" href="/static/house/css/index.css">
 
-
-
 <!-- Page Header -->
 <header class="masthead" style="background-image: url('/static/img/home-bg.jpg')">
     <div class="overlay"></div>
@@ -28,13 +26,10 @@
                                     placeholder="请输入区域、商圈或小区名开始找房">
                             </div>
                             <button type="submit" class="my-btn btn btn-info" id="btn">提交</button>
+                            <!-- 搜索下拉列表 -->
                             <ul id="list" class="list-group"></ul>
                         </form>
                     </div>
-
-                </div>
-                <div>
-
                 </div>
             </div>
         </div>
@@ -51,7 +46,7 @@
                 <span style="color:#e74c3c">北京</span>
                 &nbsp
                 <span style="color:#2980b9">房源总数:</span>
-                <span style="color:#e74c3c">{{total}}</span>
+                <span style="color:#e74c3c">{{ total }}</span>
             </div>
         </div>
     </div>
@@ -70,10 +65,9 @@
         {% for item in new_list %}
         <div class="col-lg-4">
             <div class="course">
-                <div><a href="/house"><img class='img-fluid img-box' src="{{ item.imgpath }}" alt=""></a></div>
+                <div><a href="/house/{{item.id}}"><img class='img-fluid img-box' src="{{ item.imgpath }}" alt=""></a></div>
                 <div class="course-info">
                     <span>{{item['address']}}</span>
-
                 </div>
                 <div class="course-info1">
                     <span>{{item['rooms']}} - {{item.area}}平方米</span>
@@ -99,7 +93,7 @@
         {% for item in hot_list %}
         <div class="col-lg-3">
             <div class="course">
-                <div><a href="/house"><img class='img-fluid img-box' src="/static/img/house-bg1.jpg" alt=""></a></div>
+                <div><a href="/house/{{item.id}}"><img class='img-fluid img-box' src="{{ item.imgpath }}" alt=""></a></div>
                 <div class="course-info">
                     <span>{{item['address']}}</span>
                 </div>
@@ -115,17 +109,156 @@
     </div>
     <hr>
 </div>
+
 <script>
-$(".nav-tabs li").click(function () {
+    // 搜索切换
+    $(".nav-tabs li").click(function () {
         let status = $(this).hasClass("chanle1")
+        $("#txt").val('')
         if (status) {
-            $(".user-info").show();
-            $(".chanle1").addClass("active")
+            $("#txt").attr('name', 'addr')
+            $("#txt").attr('placeholder', '请输入区域、商圈或小区名开始找房')
         }
         else {
-            $(".collection").show()
+            $("#txt").attr('placeholder', '请输入区域、商圈或小区名开始找房')
+            $("#txt").attr('name', 'rooms')
+            $("#txt").attr('placeholder', '请输入区域、商圈或小区名开始找房')
         }
         $(this).addClass("active").siblings().removeClass("active")
     })
+
+    // 延迟搜索，避免频繁请求
+    let searchTimeout;
+    let isChinese = false; // 标记是否正在输入中文
+    let isRequestInProgress = false; // 标记请求是否正在进行中
+    let isAlertShown = false; // 控制弹窗只显示一次
+    let lastSearchedKeyword = ''; // 存储上一次的搜索关键字
+
+    // 输入框监控
+    $("#txt").on('input', function () {
+        let keyword = $(this).val();
+
+        // 如果输入框为空，清空下拉列表
+        if (keyword.trim() === "") {
+            $('#list').empty(); // 清空下拉列表
+            lastSearchedKeyword = ''; // 清空上次搜索的关键字
+            return; // 不触发搜索
+        }
+
+        // 如果是英文输入，忽略不触发请求
+        if (isEnglish(keyword)) {
+            return;
+        }
+
+        // 防止重复触发请求
+        clearTimeout(searchTimeout);
+
+        // 延迟300ms后触发搜索
+        searchTimeout = setTimeout(function () {
+            // 防止请求正在进行时再次触发
+            if (isRequestInProgress) return;
+
+            // 设置请求中标志
+            isRequestInProgress = true;
+            searchByIndexOf(keyword);
+        }, 300); // 设置延迟300ms
+    });
+
+    // 判断输入是否为英文
+    function isEnglish(text) {
+        const englishRegex = /^[A-Za-z0-9\s]*$/; // 只匹配英文、数字和空格
+        return englishRegex.test(text);
+    }
+
+    // 中文输入时设置标记
+    $("#txt").on('compositionstart', function () {
+        isChinese = true; // 设置正在输入中文
+    });
+
+    // 中文输入结束时触发
+    $("#txt").on('compositionend', function () {
+        isChinese = false; // 设置输入结束
+        let keyword = $(this).val();
+        searchByIndexOf(keyword);
+    });
+
+    // 搜索关键字
+    function searchByIndexOf(keyWord) {
+        // 如果关键字与上一次相同，不执行请求
+        if (keyWord === lastSearchedKeyword) {
+            isRequestInProgress = false;
+            return;
+        }
+
+        $(".my-nav-tab li").each(function () {
+            if ($(this).hasClass("active")) {
+                let data = {
+                    "kw": keyWord,
+                    'info': $(this).text()
+                }
+
+                $.ajax({
+                    type: 'post',
+                    url: '/search/keyword/',
+                    data: data,
+                    dataType: 'json',
+                    success: function (res) {
+                        // 请求完成后重置请求中标志
+                        isRequestInProgress = false;
+
+                        // 防止重复弹窗
+                        if (res.code == 0 && !isAlertShown) {
+                            alert(`未找到关于 ${keyWord}的房屋信息！`);
+                            isAlertShown = true; // 弹窗显示过后设置标记
+                        } else if (res.code == 1) {
+                            renderSearchResults(res.data);
+                            isAlertShown = false; // 有数据时重置弹窗标记
+                        }
+                    },
+                    error: function () {
+                        // 请求出错时也重置请求中标志
+                        isRequestInProgress = false;
+                    }
+                })
+            }
+        })
+        // 保存当前搜索的关键字
+        lastSearchedKeyword = keyWord;
+    }
+
+    // 渲染搜索结果
+    function renderSearchResults(list) {
+        let oList = document.getElementById("list");
+        oList.innerHTML = '';  // 清空下拉列表
+        list.forEach(function (item) {
+            let listItem = document.createElement('li');
+            listItem.className = 'list-group-item li_style';
+            listItem.setAttribute('title', item.t_name);
+            listItem.innerHTML = `${highlightKeyword(item.t_name)} <span class="badge float-right">大约有${item.num}套房</span>`;
+            oList.appendChild(listItem);
+            bindClickEvent(listItem);
+        });
+    }
+
+    // 高亮关键词
+    function highlightKeyword(text) {
+        let keyword = $("#txt").val();
+        if(keyword)
+        {
+            return text.replace(new RegExp(`(${keyword})`, 'gi'), '<span class="highlighted">$1</span>');
+        }
+        else
+        {
+            return `<span>${text}</span>`;
+        }
+    }
+
+    // 点击搜索结果
+    function bindClickEvent(listItem) {
+        listItem.addEventListener('click', function () {
+            $('#txt').val($(this).attr('title'));
+            $('#list').empty();
+        });
+    }
 </script>
 {% endblock %}

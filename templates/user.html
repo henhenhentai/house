@@ -98,7 +98,6 @@
                 </div>
             </div>
 
-
             <!--浏览记录-->
             <div class="col-lg-4 col-md-4 mx-auto detail-body">
                 <div class="row browse-record">
@@ -204,7 +203,9 @@
         let formdata = $("#userdetail").serializeArray()
         let data = {}
         $.each(formdata, function (i, item) {
-            data[item.name] = item.value
+            if(item.value){
+                data[item.name] = item.value
+            }
         });
         let validator = $('#userdetail').data("bootstrapValidator"); //获取validator对象
         validator.validate(); //手动触发验证
