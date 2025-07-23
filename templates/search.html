@@ -103,4 +103,24 @@
     </div>
 </div>
 <hr>
+
+<script>
+    $(".zxf_pagediv").createPage({
+        pageNum: {{total_num}},//总页码
+        current: Number($("#fill-data").attr("class")),//当前的页码
+        backfun: function (e) {
+            // 获取当前页
+            let n_current = e.current
+            // 获取当前页的地址
+            let path = location.pathname
+            let path_list = path.split('/');
+            // 点击时转换当前点击的页码
+            path_list[3] = n_current
+            let url = path_list.join('/')
+            // 重新加载
+            location.replace(url)
+            // location.href = url
+        }
+    });
+</script>
 {% endblock %}
