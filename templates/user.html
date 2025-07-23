@@ -46,12 +46,13 @@
                 </form>
                 <!--收藏列表-->
                 <div class="collection">
-                    <div class="row collection-line" id="collect">
+                    {% for item in collect %}
+                    <div class="row collection-line" id="collect" data-id="{{ item.id }}">
                         <span class="collect_off" id="">取消收藏</span>
                         <div class="col-lg-4 col-md-4 mx-auto">
                             <div>
-                                <a href="/house">
-                                    <img class='img-fluid img-box' src="/static/img/house-bg1.jpg" alt="">
+                                <a href="/house/{{item.id}}">
+                                    <img class='img-fluid img-box' src="/static/img/{{ item.image_path if item.image_path else 'home-bg.jpg' }}" alt="">
                                 </a>
                             </div>
                         </div>
@@ -60,27 +61,27 @@
                                 <div>
                                     <span class="attribute-text">房源地址：</span>
                                     &nbsp
-                                    <span class="info-text">5555</span>
+                                    <span class="info-text">{{item.address}}</span>
                                 </div>
                                 <div>
                                     <span class="attribute-text">建筑面积：</span>
                                     &nbsp
-                                    <span class="info-text">6666平方米</span>
+                                    <span class="info-text">{{item.area}}平方米</span>
                                 </div>
                                 <div>
                                     <span class="attribute-text">房源户型：</span>
                                     &nbsp
-                                    <span class="info-text">7777</span>
+                                    <span class="info-text">{{item.rooms}}</span>
                                 </div>
                                 <div>
                                     <span class="attribute-text">房源朝向：</span>
                                     &nbsp
-                                    <span class="info-text">8888</span>
+                                    <span class="info-text">{{item.direction}}</span>
                                 </div>
                                 <div>
                                     <span class="attribute-text">房源价格：</span>
                                     &nbsp
-                                    <span class="info-text" style="color: #e74c3c">￥&nbsp7777</span>
+                                    <span class="info-text" style="color: #e74c3c">￥&nbsp{{item.price}}</span>
                                 </div>
 
                             </div>
@@ -88,44 +89,47 @@
                         <div class="col-lg-2 col-md-2 mx-auto" style="height: 100px; margin-top: 40px;">
                             <div class="info-more"
                                 style="width: 100%; height: 100%; position: relative; overflow: hidden;">
-                                <span><a href="/house"
+                                <span><a href="/house/{{item.id}}"
                                         style="position: absolute; top:-30px; left: -1px; height: 20px;"><i
                                             class="fa fa-arrow-right" aria-hidden="true"></i></a></span>
                             </div>
                         </div>
                     </div>
+                    {% endfor %}
 
                 </div>
             </div>
 
             <!--浏览记录-->
             <div class="col-lg-4 col-md-4 mx-auto detail-body">
+
                 <div class="row browse-record">
                     <div class="col-lg-10 col-md-10 mx-auto">
                         <h3 style="margin:20px 0 15px">浏览记录</h3>
 
                     </div>
                     <div class="col-lg-10 col-md-10 mx-auto del-btn">
-                        <span id="del">清空浏览记录</span>
+                        <span id="del" style="cursor:pointer;">清空浏览记录</span>
                     </div>
                     <div style="overflow: scroll; height:680px;">
+                        {% for item in seen %}
 
-
-                        <div class="col-lg-10 col-md-10 mx-auto browse-record-first-div">
-                            <div class="course">
+                        <div class="col-lg-10 col-md-10 mx-auto browse-record-first-div" id = "seen">
+                            <div class="view">
                                 <div><a href="/house"><img class='img-fluid img-box' src="/static/img/house-bg1.jpg"
                                             alt=""></a>
                                 </div>
                                 <div class="course-info">
                                     <span class="glyphicon glyphicon-map-marker"></span>
-                                    <span>55555</span>
+                                    <span>{{item.address}}</span>
                                 </div>
                                 <div class="course-info1">
-                                    <span>6666-200平方米</span>
-                                    <span class="price">￥&nbsp8888</span>
+                                    <span>{{item.area}}平方米</span>
+                                    <span class="price">￥&nbsp{{item.price}}</span>
                                 </div>
                             </div>
                         </div>
+                        {% endfor %}
 
                     </div>
                 </div>
@@ -229,5 +233,35 @@
             })
         }
     })
+    $(".collection").on("click", ".collect_off", function () {
+    // 获取当前房源id
+    let $line = $(this).closest('.collection-line');
+    let houseId = $line.attr('data-id');
+    if(confirm("确定要取消收藏该房源？")){
+        $.post("/collection/" + houseId, function(res){
+            let r = typeof res == "string" ? JSON.parse(res) : res;
+            if(r.code == 1){
+                alert(r.msg);
+                $line.remove(); // 前端移除
+            }else{
+                alert(r.msg);
+            }
+        });
+    }
+});
+    // 清空浏览记录
+    $("#del").click(function(){
+        if(confirm("确定要清空所有浏览记录吗？")){
+            $.post("/seen/clear", function(res){
+                if(res.code === 1){
+                    alert(res.msg);
+                    // 清空前端列表
+                    $(".browse-record-first-div").remove();
+                }else{
+                    alert(res.msg);
+                }
+            });
+        }
+    });
 </script>
 {% endblock %}

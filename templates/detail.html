@@ -1,12 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
 <link rel="stylesheet" href="/static/house/css/detail.css">
+<!-- 图表统坟插件 -->
 <script src="/static/vendor/echarts-stat/ecStat.min.js"></script>
+<!-- 图表插件 -->
 <script src="/static/js/echarts.min.js"></script>
-<script src="/static/house/js/show_data_pie.js"></script>
-<script src="/static/house/js/show_column_data.js"></script>
-<script src="/static/house/js/show_broken_line_data.js"></script>
-<script src="/static/house/js/show_f_line_data.js"></script>
 
 <header class="masthead no-margin-bottom" style="background-color: #fff">
     <div class="overlay"></div>
@@ -34,7 +32,11 @@
                                 <span class="price">￥&nbsp{{house.price}}/月</span>
                                 <span class="collection" id="btn-collection">
                                     <a>
-                                        <i class="fa fa-heart" aria-hidden="true"> 收藏</i>
+                                        {% if collection %}
+                                        <i class="fa fa-heart active" aria-hidden="true"> 已收藏</i>
+                                        {% else %}
+                                        <i class="fa fa-heart " aria-hidden="true"> 未收藏</i>
+                                        {% endif %}
                                     </a>
                                 </span>
                             </div>
@@ -292,60 +294,75 @@
         </div>
     </div>
 </header>
+<!-- 饼图插件 -->
+<script src="/static/house/js/show_data_pie.js"></script>
+<!-- 柱状图 -->
+<script src="/static/house/js/show_column_data.js"></script>
+<!-- 折线图 -->
+<script src="/static/house/js/show_broken_line_data.js"></script>
+<!-- 线性回归点状图 -->
+<script src="/static/house/js/show_f_line_data.js"></script>
 <script>
-
-
-
-    // 户型占比
-    $(document).ready(function(){
+    $(document).ready(function () {
         // 户型占比 饼图
         $.ajax({
             type: 'post',
             url: '/get/piedata/{{house.block}}',
             dataType: 'json',
-            success: function(res)
-            {
+            success: function (res) {
                 pie_chart(res.data)
             }
         })
-
-        // 房源数量top20
+        // 小区房源数量 柱状图
         $.ajax({
             type: 'post',
             url: '/get/columndata/{{house.block}}',
             dataType: 'json',
-            success: function(res)
-            {
+            success: function (res) {
                 column_chart(res.data)
             }
         })
 
-
-        //
+        // 户型价格走势 折线图
         $.ajax({
             type: 'post',
             url: '/get/brokenlinedata/{{house.block}}',
             dataType: 'json',
-            success: function(res)
-            {
+            success: function (res) {
                 broken_line_chart(res.data)
-
             }
         })
-        //
-
+<!--        // 价格走势 线性回归点状图-->
 <!--        $.ajax({-->
 <!--            type: 'post',-->
 <!--            url: '/get/scatterdata/{{house.block}}',-->
 <!--            dataType: 'json',-->
-<!--            success: function(res)-->
-<!--            {-->
+<!--            success: function (res) {-->
 <!--                get_line_data(res.data)-->
 <!--            }-->
 <!--        })-->
+    })
 
-});
-
-
+    //收藏功能
+    $("#btn-collection").click(function (){
+        $.ajax({
+            type:'post',
+            url:'/collection/{{house.id}}',
+            dataType: 'json',
+            success: function (res) {
+                if(res.code == 1)
+                {
+                    alert(res.msg);
+                    setTimeout(() =>{
+                        location.reload()
+                    },1000)
+                }
+                else
+                {
+                    alert(res.msg);
+                }
+            }
+        })
+    })
 </script>
 {% endblock %}

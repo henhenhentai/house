@@ -119,26 +119,37 @@
  .collection {
      margin-left: 420px;
      background-color: #fff;
-     border-radius: 3px;
+     border-radius: 5px;
      border: 1px solid #ecf0f1;
      display: inline-block;
      position: absolute;
- }
-
- .collection:hover {
-     background-color: #f1c40f;
      border: 0.5px solid #ecf0f1;
 
  }
 
  .collection i {
-     color: #f1c40f;
+     cursor: pointer;
      padding: 5px 10px;
+     color: #e74c3c;
+     background-color: #fff;
  }
 
- .collection:hover i {
+ .collection i:hover {
      color: #fff;
+     background-color: #e74c3c;
  }
+
+ .collection .active:hover {
+     color: #fff;
+     background-color: #f1c40f;
+ }
+
+ .collection .active {
+     color: #f1c40f;
+     background-color: #fff;
+
+ }
+
 
  /* 配套设施 */
  .icon-1 {

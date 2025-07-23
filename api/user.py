@@ -1,8 +1,9 @@
-from flask import Blueprint, request, Response, jsonify
+from flask import Blueprint, request, Response, jsonify,render_template
 from werkzeug.security import generate_password_hash,check_password_hash
 import json
-from models import User
+from models import User,House
 from config import db
+import math
 
 
 
@@ -108,3 +109,14 @@ def profile():
         return jsonify({'code': 0, 'msg': '用户不存在'})
 
 
+# @user_api.route('/collections', methods=['post'])
+# def collections(page):
+#     result = House.query.order_by(House.publish_time.desc()).all()
+#     return render_template('user.html',  house_list=result.items)
+
+
+
+# @user_api.route('/profile', methods=['post'])
+# def index():
+#     result = User.query.desc().all()
+#     return render_template('user.html', house_list=result.items)
